@@ -50,5 +50,21 @@ pipeline{
                 }
             }
         }
+
+        stage("PushHelmCharts") {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'docker_password', variable: 'docker_password')]) {
+                        dir('kubernetes') {
+                            sh '''
+                            helmVersion=$( helm show chart myapp | grep version | cut -d: -f 2 | tr -d ' ')
+                            helm package myapp --version=${helmVersion}
+                            curl -u admin:${docker_password} http://44.202.140.220:8081/repository/helm-hosted --upload-file myapp-${helmVersion}.tgz -v 
+                            '''
+                        }
+                    }
+                }
+            }
+        }
     }
 }
