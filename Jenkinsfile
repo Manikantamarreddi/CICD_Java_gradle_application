@@ -20,7 +20,7 @@ pipeline{
         stage("CheckSonarQulaityGate"){
             steps {
                 script {
-                    timeout(time: 1, unit: "Hours"){
+                    timeout(time: 1, unit: 'HOURS') {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
                             error "Pipeline is aborted due to reason - ${qg.status}"
