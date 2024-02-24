@@ -2,7 +2,7 @@ FROM openjdk:11 as base
 LABEL maintainer="Mani"
 RUN useradd mani
 WORKDIR /app
-RUN chmod +x /gradlew
+RUN chmod +x gradlew
 COPY . .
 RUN ./gradlew build
 
