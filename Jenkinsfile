@@ -1,5 +1,8 @@
 pipeline{
     agent any
+    environment{
+        VERSION = "${env.BUILD_ID}"
+    }
     stages{
         stage("StaticCodeAnalysis"){
             agent {
@@ -17,7 +20,7 @@ pipeline{
             }
         }
 
-        stage("CheckSonarQulaityGate"){
+        stage("CheckSonarQualityGate"){
             steps {
                 script {
                     timeout(time: 1, unit: 'HOURS') {
@@ -29,6 +32,21 @@ pipeline{
                             print "Pipeline stage succesful"
                         }
                     }
+                }
+            }
+        }
+
+        stage("DockerBuildandPush") {
+            steps {
+                withCredentials([string(credentialsId: 'docker_password', variable: 'docker_password')]) {
+                    script {
+                        sh '''
+                        docker build -t 44.202.140.220:8083/springapp:${VERSION} .
+                        docker login -u admin -p ${docker_password} 44.202.140.220:8083
+                        docker push 44.202.140.220:8083/springapp:${VERSION}
+                        docker rmi 44.202.140.220:8083/springapp:${VERSION}
+                        '''
+                }
                 }
             }
         }
